@@ -339,7 +339,8 @@ import_journeypatternsections <- function(journeypatternsections) {
     To.Activity = To.Activity,
     To.StopPointRef = To.StopPointRef,
     To.TimingStatus = To.TimingStatus,
-    RouteLinkRef = RouteLinkRef,
+    # buses branch: make NA because different number of rows in 4 yorkshire bus files
+    RouteLinkRef = NA,
     RunTime = RunTime,
     From.SequenceNumber = From.SequenceNumber,
     To.SequenceNumber = To.SequenceNumber,
@@ -370,13 +371,37 @@ import_operators <- function(operators) {
     TradingName <- rep(NA, length(NationalOperatorCode))
   }
 
-  operators <- data.frame(
-    NationalOperatorCode = NationalOperatorCode,
-    OperatorCode = OperatorCode,
-    OperatorShortName = OperatorShortName,
-    OperatorNameOnLicence = OperatorNameOnLicence,
-    TradingName = TradingName
-  )
+  ## buses branch: make operators NA if "arguments imply differing number of rows"
+  ## NOTE df with NAs returns neither T nor F in any(agency$agency_name == agency$agency_id) from gtfs_merge()
+  ## so add na.rm = T
+
+  # operators <- data.frame(
+  #   NationalOperatorCode = NationalOperatorCode,
+  #   OperatorCode = OperatorCode,
+  #   OperatorShortName = OperatorShortName,
+  #   OperatorNameOnLicence = OperatorNameOnLicence,
+  #   TradingName = TradingName
+  # )
+
+  operators <- tryCatch({
+    data.frame(
+      NationalOperatorCode = NationalOperatorCode,
+      OperatorCode = OperatorCode,
+      OperatorShortName = OperatorShortName,
+      OperatorNameOnLicence = OperatorNameOnLicence,
+      TradingName = TradingName
+    )
+  },
+  error = function(e) {
+    data.frame(
+      NationalOperatorCode = NA,
+      OperatorCode = NA,
+      OperatorShortName = NA,
+      OperatorNameOnLicence = NA,
+      TradingName = NA
+    )
+  })
+
   return(operators)
 }
 

@@ -40,6 +40,7 @@ gtfs_merge <- function(gtfs_list) {
   suppressWarnings(calendar_dates <- dplyr::bind_rows(calendar_dates, .id = "file_id"))
 
   # fix typo
+  agency$agency_name <- as.character(agency$agency_name)
   agency$agency_name[agency$agency_name == "Dockland Light Railway"] <- "Docklands Light Railway"
   agency$agency_name[agency$agency_name == "Edward Bros"] <- "Edwards Bros"
   agency$agency_name[agency$agency_name == "John`s Coaches"] <- "John's Coaches"
@@ -49,7 +50,8 @@ gtfs_merge <- function(gtfs_list) {
   agency$agency_id[agency$agency_name == "Tanat Valley Coaches"] <- "TanVaCo"
 
   # if agency names are same as IDs but not always
-  if (any(agency$agency_name == agency$agency_id)) {
+  ## buses branch: add na.rm = T in case of different numbering of rows in import_operators()
+  if (any(agency$agency_name == agency$agency_id, na.rm = T)) {
     agency_sub <- agency
     agency_sub$file_id <- NULL
     agency_sub <- unique(agency)
@@ -75,11 +77,12 @@ gtfs_merge <- function(gtfs_list) {
     agency.check <- agency
     agency.check$agency_name <- tolower(agency.check$agency_name)
     agency.check <- unique(agency.check)
-    if (any(duplicated(agency.check$agency_id))) {
-      stop(paste0("Duplicated Agency IDs ", paste(agency.check$agency_id[duplicated(agency.check$agency_id)], collapse = " ")))
-    } else {
-      agency <- agency[!duplicated(agency$agency_id), ]
-    }
+    ## buses branch: this was causing process to stop. agencies not needed for us.
+    # if (any(duplicated(agency.check$agency_id))) {
+    #   stop(paste0("Duplicated Agency IDs ", paste(agency.check$agency_id[duplicated(agency.check$agency_id)], collapse = " ")))
+    # } else {
+    #   agency <- agency[!duplicated(agency$agency_id), ]
+    # }
   }
 
   # stops

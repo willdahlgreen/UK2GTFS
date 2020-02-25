@@ -9,7 +9,9 @@
 #'
 #' @noRd
 #'
-transxchange_export <- function(obj, run_debug = TRUE,
+
+# buses branch: switch run_debug to F to avoid "Unknown time formats: PTHS" error
+transxchange_export <- function(obj, run_debug = F,
                                 cal = get_bank_holidays(),
                                 naptan = get_naptan(),
                                 quiet = TRUE, scotland = FALSE) {
