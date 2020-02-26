@@ -38,8 +38,9 @@ get_naptan <- function(url = "http://naptan.app.dft.gov.uk/DataRequest/Naptan.as
   file.remove("naptan.zip")
 
   # clean file
-  naptan <- naptan[, c("ATCOCode", "NaptanCode", "CommonName", "Longitude", "Latitude")]
-  names(naptan) <- c("stop_id", "stop_code", "stop_name", "stop_lon", "stop_lat")
+  # buses branch: also include StopType for filtering later
+  naptan <- naptan[, c("ATCOCode", "NaptanCode", "CommonName", "Longitude", "Latitude", "StopType")]
+  names(naptan) <- c("stop_id", "stop_code", "stop_name", "stop_lon", "stop_lat", "StopType")
 
   naptan$stop_lon <- format(round(naptan$stop_lon, 6), scientific = FALSE)
   naptan$stop_lat <- format(round(naptan$stop_lat, 6), scientific = FALSE)
@@ -47,7 +48,7 @@ get_naptan <- function(url = "http://naptan.app.dft.gov.uk/DataRequest/Naptan.as
   # Append alterative tags
 
   naptan_extra <- naptan_extra[!naptan_extra$stop_id %in% naptan$stop_id,]
-  naptan <- rbind(naptan, naptan_extra)
+  naptan <- rbind(naptan, naptan_extra, fill = T)
 
   return(naptan)
 }
