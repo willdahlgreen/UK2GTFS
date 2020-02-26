@@ -27,12 +27,13 @@
 #   return(naptan)
 # }
 
-# buses branch: use this version (has more lat lons)
-get_naptan <- function(url = "http://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv", naptan_extra = naptan_missing) {
+# buses branch: use this version (has more lat lons). load naptan_missing in whichever R session function called.
+get_naptan <- function(url = "http://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv", naptan_extra) {
   utils::download.file(url = url, destfile = "naptan.zip", mode = "wb")
   dir.create("temp")
   utils::unzip("naptan.zip", exdir = "temp")
-  naptan <- utils::read.csv("temp/stops.csv", stringsAsFactors = F)
+  # buses branch: use data.table for speed
+  naptan <- data.table::fread("temp/stops.csv", stringsAsFactors = F)
   unlink("temp", recursive = T)
   file.remove("naptan.zip")
 
@@ -44,7 +45,8 @@ get_naptan <- function(url = "http://naptan.app.dft.gov.uk/DataRequest/Naptan.as
   naptan$stop_lat <- format(round(naptan$stop_lat, 6), scientific = FALSE)
 
   # Append alterative tags
-  naptan_missing <- naptan_missing[!naptan_missing$stop_id %in% naptan$stop_id,]
+
+  naptan_extra <- naptan_extra[!naptan_extra$stop_id %in% naptan$stop_id,]
   naptan <- rbind(naptan, naptan_extra)
 
   return(naptan)
