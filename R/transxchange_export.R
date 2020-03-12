@@ -171,7 +171,8 @@ transxchange_export <- function(obj, run_debug = F,
   stops <- StopPoints[, "StopPointRef", drop = FALSE]
   names(stops) <- c("stop_id")
   stops$stop_id <- as.character(stops$stop_id)
-  stops <- dplyr::left_join(stops, naptan, by = "stop_id")
+  # remove StopType which was added to get full naptan
+  stops <- dplyr::left_join(stops, dplyr::select(naptan, -StopType), by = "stop_id")
 
 
   # routes ------------------------------------------------------------------
